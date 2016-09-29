@@ -7,6 +7,11 @@ const {join: joinPath, relative: getRelativePath} = require('path')
 const {statAsync: stat} = require('fs-extra-promise')
 
 module.exports = function(src, dest, entries = 'index.js') {
+  [['src', src], ['dest', dest]].forEach(([name, value]) => {
+    if (typeof value !== 'string' || !value.length) {
+      throw new Error(`"${name}" is required and must be a string`)
+    }
+  })
   return stat(src).then(stats => {
     return stats.isDirectory()
   }).then(is => {
@@ -25,7 +30,7 @@ module.exports = function(src, dest, entries = 'index.js') {
         }]
       ]
 
-      const jsSrc = '**/*.{js,jsx,es6,es}'
+      const jsSrc = '**/*.{js,jsx,es,es6}'
       const jsStream = gulp.src(jsSrc, {cwd: src})
         .pipe(sourcemaps.init())
         .pipe(babel({
