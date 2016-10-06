@@ -66,5 +66,5 @@ transpile({
   - `src: string` Path to directory containing a node project to be transpiled
   - `dest: string` Path to directory where transpiled project will be output
   - `entries: [], ['index.js]` Application entry points. Defaults to `index.js`.
-  - `verbose: boolean`, false` additional console logging
+  - `verbose: boolean, false` additional console logging
 - **returns**: `promise`
