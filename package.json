@@ -1,6 +1,6 @@
 {
   "name": "ned-transpile",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node project transpiler for ned.",
   "keywords": [
     "ned",
