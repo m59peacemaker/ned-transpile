@@ -14,28 +14,28 @@ const resetState = () => rimraf.sync(tmpDir)
 
 test('throws when "src" does not exist', t => {
   t.plan(1)
-  compile(fixture('ded'), tmpDir)
+  compile({src: fixture('ded'), dest: tmpDir})
     .then(t.fail)
     .catch(t.pass)
 })
 
 test('throws when "src" is not a directory', t => {
   t.plan(1)
-  compile(fixture('this-is-a-file'), tmpDir)
+  compile({src: fixture('this-is-a-file'), dest: tmpDir})
     .then(t.fail)
     .catch(t.pass)
 })
 
 test('throws when "dest" is the "src" directory', t => {
   t.plan(1)
-  compile(fixture('args'), fixture('args/'))
+  compile({src: fixture('args'), dest: fixture('args/')})
     .then(t.fail)
     .catch(t.pass)
 })
 
 test('copies js', t => {
   t.plan(1)
-  compile(fixture('copies-js'), tmpDir)
+  compile({src: fixture('copies-js'), dest: tmpDir})
     .then(() => {
       const result = require(tmpDir)()
       resetState()
@@ -49,7 +49,7 @@ test('copies js', t => {
 
 test('copies other files', t => {
   t.plan(1)
-  compile(fixture('copies-all'), tmpDir)
+  compile({src: fixture('copies-all'), dest: tmpDir})
     .then(() => {
       const result = readFileSync(tmpDir + '/css/app.css', 'utf8')
       resetState()
@@ -63,7 +63,7 @@ test('copies other files', t => {
 
 test('compiles async/await', t => {
   t.plan(1)
-  compile(fixture('async-await'), tmpDir)
+  compile({src: fixture('async-await'), dest: tmpDir})
     .then(() => {
       reloadRequire(tmpDir)
       resetState()
@@ -77,7 +77,7 @@ test('compiles async/await', t => {
 
 test('compiles flow types', t => {
   t.plan(1)
-  compile(fixture('flow'), tmpDir)
+  compile({src: fixture('flow'), dest: tmpDir})
     .then(() => {
       reloadRequire(tmpDir)
       resetState()
@@ -91,7 +91,7 @@ test('compiles flow types', t => {
 
 test('supports root require', t => {
   t.plan(1)
-  compile(fixture('root-require'), tmpDir)
+  compile({src: fixture('root-require'), dest: tmpDir})
     .then(() => {
       const result = reloadRequire(tmpDir)
       resetState()
@@ -105,7 +105,7 @@ test('supports root require', t => {
 
 test('allows trailing function commas', t => {
   t.plan(1)
-  compile(fixture('trailing-function-comma'), tmpDir)
+  compile({src: fixture('trailing-function-comma'), dest: tmpDir})
     .then(() => {
       const result = reloadRequire(tmpDir)
       resetState()
@@ -119,7 +119,7 @@ test('allows trailing function commas', t => {
 
 test('supports es6 modules', t => {
   t.plan(1)
-  compile(fixture('es6-modules'), tmpDir)
+  compile({src: fixture('es6-modules'), dest: tmpDir})
     .catch(t.fail)
     .then(() => {
       const result = reloadRequire(tmpDir).default
@@ -135,7 +135,7 @@ test('supports es6 modules', t => {
 // works for free because imports are transformed into requires
 test('supports root import', t => {
   t.plan(1)
-  compile(fixture('root-import'), tmpDir)
+  compile({src: fixture('root-import'), dest: tmpDir})
     .then(() => {
       const result = reloadRequire(tmpDir).default
       resetState()
@@ -149,7 +149,7 @@ test('supports root import', t => {
 
 test('forces strict mode', t => {
   t.plan(1)
-  compile(fixture('strict-mode'), tmpDir)
+  compile({src: fixture('strict-mode'), dest: tmpDir})
     .then(() => {
       reloadRequire(tmpDir)
       resetState()
@@ -163,7 +163,7 @@ test('forces strict mode', t => {
 
 test('supports sourcemaps', t => {
   t.plan(1)
-  compile(fixture('source-maps'), tmpDir)
+  compile({src: fixture('source-maps'), dest: tmpDir})
     .then(() => {
       reloadRequire(tmpDir)
       resetState()
@@ -179,7 +179,7 @@ test('supports sourcemaps', t => {
 test('array of entries all get sourcemap support', t => {
   t.plan(2)
   const entries = ['index.js', 'nest/entry.js']
-  compile(fixture('source-maps'), tmpDir, entries)
+  compile({src: fixture('source-maps'), dest: tmpDir, entries})
     .then(() => {
       entries.forEach((entry, idx) => {
         try {

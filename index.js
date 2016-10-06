@@ -1,12 +1,26 @@
 const gulp = require('gulp')
+const gulpIf = require('gulp-if')
 const babel = require('gulp-babel')
 const sourcemaps = require('gulp-sourcemaps')
 const merge = require('merge-stream')
 const injectBundle = require('./lib/inject-bundle')
 const {join: joinPath, relative: getRelativePath} = require('path')
 const {statAsync: stat} = require('fs-extra-promise')
+const {obj: through} = require('throo')
 
-module.exports = function(src, dest, entries = 'index.js') {
+const logFilePaths = () => {
+  return through((push, chunk, enc, cb) => {
+    console.log(chunk.relative)
+    cb(null, chunk)
+  })
+}
+
+module.exports = ({
+  src,
+  dest,
+  entries = ['index.js'],
+  verbose = false
+}) => {
   [['src', src], ['dest', dest]].forEach(([name, value]) => {
     if (typeof value !== 'string' || !value.length) {
       throw new Error(`"${name}" is required and must be a string`)
@@ -37,6 +51,7 @@ module.exports = function(src, dest, entries = 'index.js') {
           presets,
           plugins
         }))
+        .pipe(gulpIf(verbose, logFilePaths()))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(dest))
 
