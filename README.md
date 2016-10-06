@@ -35,7 +35,7 @@ const transpile = require('ned-transpile')
 transpile({
   src: srcPath,
   dest: destPath,
-  entries: ['index.js, 'bin/foo.js']
+  entries: ['index.js', 'bin/foo.js']
 }).then(() => {
   console.log('Done!')
 })
