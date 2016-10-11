@@ -55,7 +55,7 @@ module.exports = ({
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(dest))
 
-      const otherStream = gulp.src([src + '/**/*', '!' + jsSrc], {cwd: src, base: src})
+      const otherStream = gulp.src(['**/*', '!' + jsSrc], {cwd: src, base: src})
         .pipe(gulp.dest(dest))
 
       return merge(jsStream, otherStream)

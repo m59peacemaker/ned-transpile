@@ -1,7 +1,7 @@
 const test = require('tape')
 const rimraf = require('rimraf')
-const fs = require('fs')
-const readFileSync = fs.readFileSync
+const {readFileSync} = require('fs')
+const {exec} = require('child_process')
 const reloadRequire = require('require-reload')(require)
 const compile = require('../')
 
@@ -48,17 +48,39 @@ test('copies js', t => {
 })
 
 test('copies other files', t => {
-  t.plan(1)
+  t.plan(2)
   compile({src: fixture('copies-all'), dest: tmpDir})
     .then(() => {
-      const result = readFileSync(tmpDir + '/css/app.css', 'utf8')
+      const css = readFileSync(tmpDir + '/css/app.css', 'utf8')
+      const jpg = readFileSync(tmpDir + '/foo.jpg', 'utf8')
       resetState()
-      t.equal(result, 'body { }\n')
+      t.equal(css, 'body { }\n')
+      t.equal(jpg, '123\n')
     })
     .catch(err => {
       resetState()
       t.fail(err)
     })
+})
+
+test('copies other files - cmd, relative paths', t => {
+  exec(`${__dirname}/../bin/cmd.js test/fixtures/copies-all ${tmpDir}`, (err, stdout, stdin) => {
+    try {
+      if (err) {
+        throw err
+      }
+      const css = readFileSync(tmpDir + '/css/app.css', 'utf8')
+      const jpg = readFileSync(tmpDir + '/foo.jpg', 'utf8')
+      resetState()
+      t.equal(css, 'body { }\n')
+      t.equal(jpg, '123\n')
+      t.end()
+    } catch (err) {
+      resetState()
+      t.fail(err)
+      t.end()
+    }
+  })
 })
 
 test('compiles async/await', t => {
@@ -172,7 +194,7 @@ test('supports sourcemaps', t => {
     .catch((err) => {
       err.stack // `err.stack` is a getter. It has to be accessed before removing the files.
       resetState()
-      t.true(err.stack.split('\n')[1].indexOf('/index.js:10') !== -1)
+      t.true(err.stack.split('\n')[1].indexOf('index.js:10') !== -1)
     })
 })
 
@@ -187,7 +209,7 @@ test('array of entries all get sourcemap support', t => {
           t.fail('required module is supposed to throw')
         } catch (err) {
           err.stack // `err.stack` is a getter. It has to be accessed before removing the files.
-          const expectedInLine = idx === 0 ? '/index.js:10' : '/nest/entry.js:2'
+          const expectedInLine = idx === 0 ? 'index.js:10' : 'nest/entry.js:2'
           const line = err.stack.split('\n')[1]
           t.true(line.indexOf(expectedInLine) !== -1, line)
         }
