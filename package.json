@@ -16,7 +16,8 @@
     "ned-transpile": "bin/cmd.js"
   },
   "scripts": {
-    "test": "node test"
+    "test": "node test",
+    "sourcemap-bundle": "git clone git@github.com:evanw/node-source-map-support.git /tmp/sm && (cd /tmp/sm && git checkout v0.4.2 && npm install && browserify --node register.js > bundle.js) && cp /tmp/sm/bundle.js lib/source-map-support-register.bundle.js && rm -rf /tmp/sm"
   },
   "repository": {
     "type": "git",
@@ -25,10 +26,10 @@
   "author": {
     "name": "Johnny Hauser",
     "email": "johnnyhauser@gmail.com"
-  }, 
+  },
   "license": "VOL",
   "dependencies": {
-    "babel-plugin-root-require": "^1.0.3",
+    "babel-plugin-root-require": "^1.0.4",
     "babel-plugin-transform-strict-mode": "^6.11.3",
     "babel-preset-flow": "^1.0.0",
     "babel-preset-node6": "^11.0.0",

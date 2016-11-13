@@ -192,9 +192,8 @@ test('supports sourcemaps', t => {
       t.fail('required module is supposed to throw')
     })
     .catch((err) => {
-      err.stack // `err.stack` is a getter. It has to be accessed before removing the files.
-      resetState()
       t.true(err.stack.split('\n')[1].indexOf('index.js:10') !== -1)
+      resetState()
     })
 })
 
