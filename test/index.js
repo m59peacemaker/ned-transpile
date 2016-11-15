@@ -1,7 +1,8 @@
 const test = require('tape')
-const rimraf = require('rimraf')
 const {readFileSync} = require('fs')
+const {removeSync} = require('fs-extra-promise')
 const {exec} = require('child_process')
+const {join: joinPath} = require('path')
 const reloadRequire = require('require-reload')(require)
 const compile = require('../')
 
@@ -10,7 +11,7 @@ const tmpDir = '/tmp/compile-js'
 
 const fixture = name => fixtures + '/' + name
 
-const resetState = () => rimraf.sync(tmpDir)
+const resetState = () => removeSync(tmpDir)
 
 test('throws when "src" does not exist', t => {
   t.plan(1)
@@ -97,20 +98,6 @@ test('compiles async/await', t => {
     })
 })
 
-test('compiles flow types', t => {
-  t.plan(1)
-  compile({src: fixture('flow'), dest: tmpDir})
-    .then(() => {
-      reloadRequire(tmpDir)
-      resetState()
-      t.pass()
-    })
-    .catch(err => {
-      resetState()
-      t.fail(err)
-    })
-})
-
 test('supports root require', t => {
   t.plan(1)
   compile({src: fixture('root-require'), dest: tmpDir})
@@ -169,11 +156,16 @@ test('supports root import', t => {
     })
 })
 
+// as of node 7
+// something between this and the next souremap test gets messed up if they use the same directory
+// probably a problem with source-map-support or require-reload, since both are hacky
+// using a different dir fixes it
 test('forces strict mode', t => {
   t.plan(1)
-  compile({src: fixture('strict-mode'), dest: tmpDir})
+  const dir = tmpDir + '/foo'
+  compile({src: fixture('strict-mode'), dest: dir})
     .then(() => {
-      reloadRequire(tmpDir)
+      require(dir)
       resetState()
       t.fail('non-strict js code did not throw!')
     })
@@ -192,27 +184,8 @@ test('supports sourcemaps', t => {
       t.fail('required module is supposed to throw')
     })
     .catch((err) => {
-      t.true(err.stack.split('\n')[1].indexOf('index.js:10') !== -1)
+      const line = err.stack.split('\n')[1]
       resetState()
-    })
-})
-
-test('array of entries all get sourcemap support', t => {
-  t.plan(2)
-  const entries = ['index.js', 'nest/entry.js']
-  compile({src: fixture('source-maps'), dest: tmpDir, entries})
-    .then(() => {
-      entries.forEach((entry, idx) => {
-        try {
-          reloadRequire(tmpDir + '/' + entry)
-          t.fail('required module is supposed to throw')
-        } catch (err) {
-          err.stack // `err.stack` is a getter. It has to be accessed before removing the files.
-          const expectedInLine = idx === 0 ? 'index.js:10' : 'nest/entry.js:2'
-          const line = err.stack.split('\n')[1]
-          t.true(line.indexOf(expectedInLine) !== -1, line)
-        }
-      })
-      resetState()
+      t.true(line.includes('index.js:10'), line)
     })
 })

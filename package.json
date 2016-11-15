@@ -1,6 +1,6 @@
 {
   "name": "ned-transpile",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node project transpiler for ned.",
   "keywords": [
     "ned",
@@ -16,8 +16,7 @@
     "ned-transpile": "bin/cmd.js"
   },
   "scripts": {
-    "test": "node test",
-    "sourcemap-bundle": "git clone git@github.com:evanw/node-source-map-support.git /tmp/sm && (cd /tmp/sm && git checkout v0.4.2 && npm install && browserify --node register.js > bundle.js) && cp /tmp/sm/bundle.js lib/source-map-support-register.bundle.js && rm -rf /tmp/sm"
+    "test": "node test"
   },
   "repository": {
     "type": "git",
@@ -29,11 +28,12 @@
   },
   "license": "VOL",
   "dependencies": {
+    "babel-plugin-node-sourcemap-support": "0.0.0",
     "babel-plugin-root-require": "^1.0.4",
+    "babel-plugin-syntax-trailing-function-commas": "^6.13.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
     "babel-plugin-transform-strict-mode": "^6.11.3",
-    "babel-preset-flow": "^1.0.0",
-    "babel-preset-node6": "^11.0.0",
-    "babel-preset-stage-2": "^6.13.0",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "figures-colored": "^1.0.0",
@@ -43,13 +43,11 @@
     "gulp-if": "^2.0.1",
     "gulp-sourcemaps": "^1.6.0",
     "merge-stream": "0.1.6",
-    "mkdirp-promise": "^3.0.1",
     "throo": "^1.0.0",
     "through2": "^2.0.1"
   },
   "devDependencies": {
     "require-reload": "^0.2.2",
-    "rimraf": "^2.5.4",
     "tape": "^4.6.0"
   }
 }

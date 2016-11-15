@@ -1,11 +1,10 @@
+const {join: joinPath, relative: getRelativePath} = require('path')
+const {statAsync: stat} = require('fs-extra-promise')
 const gulp = require('gulp')
 const gulpIf = require('gulp-if')
 const babel = require('gulp-babel')
 const sourcemaps = require('gulp-sourcemaps')
 const merge = require('merge-stream')
-const injectBundle = require('./lib/inject-bundle')
-const {join: joinPath, relative: getRelativePath} = require('path')
-const {statAsync: stat} = require('fs-extra-promise')
 const {obj: through} = require('throo')
 
 const logFilePaths = () => {
@@ -19,7 +18,8 @@ module.exports = ({
   src,
   dest,
   entries = ['index.js'],
-  verbose = false
+  verbose = false,
+  sourceMapPluginCache = true // for tests or weird usage
 }) => {
   [['src', src], ['dest', dest]].forEach(([name, value]) => {
     if (typeof value !== 'string' || !value.length) {
@@ -32,15 +32,19 @@ module.exports = ({
     if (!is) { throw new Error(`${src} is not a directory`) }
     if (!getRelativePath(src, dest).length) { throw new Error('"dest" cannot be the "src" directory') }
     return new Promise((resolve, reject) => {
-      const presets = [
-        require('babel-preset-stage-2'),
-        require('babel-preset-node6'),
-        require('babel-preset-flow')
-      ]
       const plugins = [
         require('babel-plugin-transform-strict-mode'),
+        require('babel-plugin-transform-es2015-modules-commonjs'),
+        require('babel-plugin-syntax-trailing-function-commas'),
+        require('babel-plugin-transform-async-to-generator'),
         [require('babel-plugin-root-require'), {
           projectRoot: src
+        }],
+        [require('babel-plugin-node-sourcemap-support'), {
+          src,
+          dest,
+          entries,
+          cache: sourceMapPluginCache
         }]
       ]
 
@@ -48,7 +52,6 @@ module.exports = ({
       const jsStream = gulp.src(jsSrc, {cwd: src})
         .pipe(sourcemaps.init())
         .pipe(babel({
-          presets,
           plugins
         }))
         .pipe(gulpIf(verbose, logFilePaths()))
@@ -62,7 +65,5 @@ module.exports = ({
         .on('error', reject)
         .on('end', resolve)
     })
-  }).then(() => {
-    return injectBundle(__dirname + '/lib/source-map-support-register.bundle.js', dest, entries)
   })
 }
