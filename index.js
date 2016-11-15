@@ -1,6 +1,6 @@
 const {join: joinPath, relative: getRelativePath} = require('path')
 const {statAsync: stat} = require('fs-extra-promise')
-const gulp = require('gulp')
+const vfs = require('vinyl-fs')
 const gulpIf = require('gulp-if')
 const babel = require('gulp-babel')
 const sourcemaps = require('gulp-sourcemaps')
@@ -49,17 +49,17 @@ module.exports = ({
       ]
 
       const jsSrc = '**/*.{js,jsx,es,es6}'
-      const jsStream = gulp.src(jsSrc, {cwd: src})
+      const jsStream = vfs.src(jsSrc, {cwd: src})
         .pipe(sourcemaps.init())
         .pipe(babel({
           plugins
         }))
         .pipe(gulpIf(verbose, logFilePaths()))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(dest))
+        .pipe(vfs.dest(dest))
 
-      const otherStream = gulp.src(['**/*', '!' + jsSrc], {cwd: src, base: src})
-        .pipe(gulp.dest(dest))
+      const otherStream = vfs.src(['**/*', '!' + jsSrc], {cwd: src, base: src})
+        .pipe(vfs.dest(dest))
 
       return merge(jsStream, otherStream)
         .on('error', reject)
