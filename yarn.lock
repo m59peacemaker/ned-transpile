@@ -18,6 +18,10 @@ ansi-styles@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-2.2.1.tgz#b432dd3358b634cf75e1e4664368240533c1ddbe"
 
+any-promise@^1.1.0, any-promise@~1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/any-promise/-/any-promise-1.3.0.tgz#abc6afeedcea52e809cdc0376aed3ce39635d17f"
+
 arr-diff@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/arr-diff/-/arr-diff-2.0.0.tgz#8f3b827f955a8bd669697e4a4256ac3ceae356cf"
@@ -398,6 +402,12 @@ duplexify@^3.2.0, duplexify@^3.5.0:
 end-of-stream@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/end-of-stream/-/end-of-stream-1.0.0.tgz#d4596e702734a93e40e9af864319eabd99ff2f0e"
+  dependencies:
+    once "~1.3.0"
+
+end-of-stream@~1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/end-of-stream/-/end-of-stream-1.1.0.tgz#e9353258baa9108965efc41cb0ef8ade2f3cfb07"
   dependencies:
     once "~1.3.0"
 
@@ -1061,12 +1071,6 @@ meow@^3.3.0:
     redent "^1.0.0"
     trim-newlines "^1.0.0"
 
-merge-stream@0.1.6:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/merge-stream/-/merge-stream-0.1.6.tgz#5c81b612d8816509c9ae101f429cfc31f3191df7"
-  dependencies:
-    through2 "^0.6.1"
-
 merge-stream@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/merge-stream/-/merge-stream-1.0.0.tgz#9cfd156fef35421e2b5403ce11dc6eb1962b026e"
@@ -1445,6 +1449,20 @@ stream-shift@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.0.tgz#d5c752825e5367e786f78e18e445ea223a155952"
 
+stream-to-array@~2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/stream-to-array/-/stream-to-array-2.3.0.tgz#bbf6b39f5f43ec30bc71babcb37557acecf34353"
+  dependencies:
+    any-promise "^1.1.0"
+
+stream-to-promise@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/stream-to-promise/-/stream-to-promise-2.2.0.tgz#b1edb2e1c8cb11289d1b503c08d3f2aef51e650f"
+  dependencies:
+    any-promise "~1.3.0"
+    end-of-stream "~1.1.0"
+    stream-to-array "~2.3.0"
+
 string.prototype.trim@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/string.prototype.trim/-/string.prototype.trim-1.1.2.tgz#d04de2c89e137f4d7d206f086b5ed2fae6be8cea"
@@ -1530,7 +1548,7 @@ through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@~2.0.0:
     readable-stream "~2.0.0"
     xtend "~4.0.0"
 
-through2@^0.6.0, through2@^0.6.1:
+through2@^0.6.0:
   version "0.6.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-0.6.5.tgz#41ab9c67b29d57209071410e1d7a7a968cd3ad48"
   dependencies:

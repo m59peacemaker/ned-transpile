@@ -4,7 +4,7 @@ const vfs = require('vinyl-fs')
 const gulpIf = require('gulp-if')
 const babel = require('gulp-babel')
 const sourcemaps = require('gulp-sourcemaps')
-const merge = require('merge-stream')
+const streamToPromise = require('stream-to-promise')
 const {obj: through} = require('throo')
 
 const logFilePaths = () => {
@@ -18,8 +18,7 @@ module.exports = ({
   src,
   dest,
   entries = ['index.js'],
-  verbose = false,
-  sourceMapPluginCache = true // for tests or weird usage
+  verbose = false
 }) => {
   [['src', src], ['dest', dest]].forEach(([name, value]) => {
     if (typeof value !== 'string' || !value.length) {
@@ -31,39 +30,34 @@ module.exports = ({
   }).then(is => {
     if (!is) { throw new Error(`${src} is not a directory`) }
     if (!getRelativePath(src, dest).length) { throw new Error('"dest" cannot be the "src" directory') }
-    return new Promise((resolve, reject) => {
-      const plugins = [
-        require('babel-plugin-transform-strict-mode'),
-        require('babel-plugin-transform-es2015-modules-commonjs'),
-        require('babel-plugin-syntax-trailing-function-commas'),
-        require('babel-plugin-transform-async-to-generator'),
-        [require('babel-plugin-root-require'), {
-          projectRoot: src
-        }],
-        [require('babel-plugin-node-sourcemap-support'), {
-          src,
-          dest,
-          entries,
-          cache: sourceMapPluginCache
-        }]
-      ]
+    const plugins = [
+      require('babel-plugin-transform-strict-mode'),
+      require('babel-plugin-transform-es2015-modules-commonjs'),
+      require('babel-plugin-syntax-trailing-function-commas'),
+      require('babel-plugin-transform-async-to-generator'),
+      [require('babel-plugin-root-require'), {
+        projectRoot: src
+      }],
+      [require('babel-plugin-node-sourcemap-support'), {
+        src,
+        dest,
+        entries
+      }]
+    ]
 
-      const jsSrc = '**/*.{js,jsx,es,es6}'
-      const jsStream = vfs.src(jsSrc, {cwd: src})
-        .pipe(sourcemaps.init())
-        .pipe(babel({
-          plugins
-        }))
-        .pipe(gulpIf(verbose, logFilePaths()))
-        .pipe(sourcemaps.write())
-        .pipe(vfs.dest(dest))
+    const jsSrc = '**/*.{js,jsx,es,es6}'
+    const jsStream = vfs.src(jsSrc, {cwd: src})
+      .pipe(sourcemaps.init())
+      .pipe(babel({
+        plugins
+      }))
+      .pipe(gulpIf(verbose, logFilePaths()))
+      .pipe(sourcemaps.write())
+      .pipe(vfs.dest(dest))
 
-      const otherStream = vfs.src(['**/*', '!' + jsSrc], {cwd: src, base: src})
-        .pipe(vfs.dest(dest))
+    const otherStream = vfs.src(['**/*', '!' + jsSrc], {cwd: src, base: src})
+      .pipe(vfs.dest(dest))
 
-      return merge(jsStream, otherStream)
-        .on('error', reject)
-        .on('end', resolve)
-    })
+    return Promise.all([jsStream, otherStream].map(s => streamToPromise(s)))
   })
 }
